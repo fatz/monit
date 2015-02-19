@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe 'monit::default' do
   context "with default attributes" do
-    let(:chef_run) do 
+    let(:chef_run) do
       runner = ChefSpec::Runner.new(:platform => 'ubuntu', :version => '12.04').converge(described_recipe)
     end
 
@@ -17,6 +17,7 @@ describe 'monit::default' do
 
       expect(chef_run).to render_file('/etc/monit/monitrc').with_content(/set daemon 60\n\s*with start delay 120$/)
       expect(chef_run).to render_file('/etc/monit/monitrc').with_content(/set httpd port 3737/)
+      expect(chef_run).to render_file('/etc/monit/monitrc').with_content('include /etc/monit/conf.d/*.conf')
 
       expect(chef_run).not_to render_file('/etc/monit/monitrc').with_content(/set mailserver/)
       expect(chef_run).not_to render_file('/etc/monit/monitrc').with_content(/set mail-format/)
@@ -24,11 +25,11 @@ describe 'monit::default' do
     end
 
     it 'enables the service' do
-      expect(chef_run).to enable_service('monit') 
+      expect(chef_run).to enable_service('monit')
     end
 
     it 'start the service' do
-      expect(chef_run).to start_service('monit') 
+      expect(chef_run).to start_service('monit')
     end
 
     it 'does not email notifications' do
@@ -41,7 +42,7 @@ describe 'monit::default' do
       runner = ChefSpec::Runner.new(:platform => 'ubuntu', :version => '12.04') do |node|
         node.set[:monit][:notify_email] = 'johndoe@example.com'
         node.set[:monit][:logfile] = '/var/log/monit.log'
-        node.set[:monit][:poll_period] = 30         
+        node.set[:monit][:poll_period] = 30
         node.set[:monit][:poll_start_delay] = 90
         node.set[:monit][:mail_format][:subject] = 'Hello from monit'
         node.set[:monit][:mail_format][:from] = 'monit@example.com'
